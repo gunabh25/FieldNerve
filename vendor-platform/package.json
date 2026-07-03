@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/server.js",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "dev": "nodemon --exec tsx src/server.js",
     "start": "tsx src/server.js",
