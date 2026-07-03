@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Vendor Platform API",
-    "description": "Vendor and VendorDocument CRUD endpoints for the intelligent vendor recommendation platform",
+    "description": "Vendor, VendorDocument, and WorkRequirement CRUD endpoints for the intelligent vendor recommendation platform",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -15,6 +15,10 @@
     },
     {
       "key": "documentId",
+      "value": ""
+    },
+    {
+      "key": "workRequirementId",
       "value": ""
     }
   ],
@@ -198,6 +202,94 @@
             "method": "DELETE",
             "header": [],
             "url": "{{baseUrl}}/api/vendors/{{vendorId}}/documents/{{documentId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Work Requirements",
+      "item": [
+        {
+          "name": "List All Work Requirements",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/work-requirements"
+          }
+        },
+        {
+          "name": "List Work Requirements (filtered)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/work-requirements?category=Construction&priority=HIGH&location=Austin, TX",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "work-requirements"],
+              "query": [
+                { "key": "category", "value": "Construction" },
+                { "key": "priority", "value": "HIGH" },
+                { "key": "location", "value": "Austin, TX" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Work Requirement",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('workRequirementId', json.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Office Renovation\",\n  \"category\": \"Construction\",\n  \"location\": \"Austin, TX\",\n  \"estimatedValue\": 50000,\n  \"expectedStartDate\": \"2026-08-01\",\n  \"priority\": \"HIGH\"\n}"
+            },
+            "url": "{{baseUrl}}/api/work-requirements"
+          }
+        },
+        {
+          "name": "Get Work Requirement by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/work-requirements/{{workRequirementId}}"
+          }
+        },
+        {
+          "name": "Update Work Requirement",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estimatedValue\": 75000,\n  \"priority\": \"MEDIUM\",\n  \"expectedStartDate\": \"2026-09-15\"\n}"
+            },
+            "url": "{{baseUrl}}/api/work-requirements/{{workRequirementId}}"
+          }
+        },
+        {
+          "name": "Delete Work Requirement",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/work-requirements/{{workRequirementId}}"
           }
         }
       ]
