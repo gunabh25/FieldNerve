@@ -1,0 +1,110 @@
+{
+  "info": {
+    "name": "Vendor Platform API",
+    "description": "Vendor CRUD endpoints for the intelligent vendor recommendation platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "vendorId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/health"
+      }
+    },
+    {
+      "name": "List All Vendors",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/vendors"
+      }
+    },
+    {
+      "name": "List Vendors (filtered)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/vendors?status=ACTIVE&category=Electrical&vendorType=Contractor",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "vendors"],
+          "query": [
+            { "key": "status", "value": "ACTIVE" },
+            { "key": "category", "value": "Electrical" },
+            { "key": "vendorType", "value": "Contractor" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create Vendor",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "  const json = pm.response.json();",
+              "  pm.collectionVariables.set('vendorId', json.data.id);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Acme Corp\",\n  \"vendorType\": \"Contractor\",\n  \"category\": \"Electrical\",\n  \"contactName\": \"John Doe\",\n  \"email\": \"john@acme.com\",\n  \"phone\": \"555-0100\",\n  \"operatingLocation\": \"Austin, TX\",\n  \"rating\": 4.5\n}"
+        },
+        "url": "{{baseUrl}}/api/vendors"
+      }
+    },
+    {
+      "name": "Get Vendor by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/vendors/{{vendorId}}"
+      }
+    },
+    {
+      "name": "Update Vendor",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"rating\": 4.8,\n  \"status\": \"INACTIVE\"\n}"
+        },
+        "url": "{{baseUrl}}/api/vendors/{{vendorId}}"
+      }
+    },
+    {
+      "name": "Delete Vendor",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/vendors/{{vendorId}}"
+      }
+    }
+  ]
+}
