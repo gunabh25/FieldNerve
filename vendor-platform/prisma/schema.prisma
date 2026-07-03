@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum VendorStatus {
+  ACTIVE
+  INACTIVE
+  PENDING_REVIEW
+  SUSPENDED
+}
+
+enum DocumentType {
+  LICENSE
+  INSURANCE
+  CERTIFICATION
+  CONTRACT
+  W9
+  SAFETY_RECORD
+  OTHER
+}
+
+enum DocumentStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
+
+enum WorkRequirementStatus {
+  DRAFT
+  OPEN
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum AssignmentStatus {
+  RECOMMENDED
+  PENDING_ACCEPTANCE
+  ACCEPTED
+  DECLINED
+  REASSIGNED
+}
+
+model Vendor {
+  id          String       @id @default(cuid())
+  name        String
+  companyName String?
+  email       String       @unique
+  phone       String?
+  description String?
+  website     String?
+
+  // Capabilities used for intelligent matching
+  categories  String[]     @default([])
+  skills      String[]     @default([])
+  serviceArea String?
+  rating      Float?       @default(0)
+
+  status VendorStatus @default(PENDING_REVIEW)
+
+  documents         VendorDocument[]
+  workRequirements  WorkRequirement[] @relation("AssignedVendor")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([categories])
+}
+
+model VendorDocument {
+  id       String @id @default(cuid())
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  type        DocumentType
+  fileUrl     String
+  fileName    String?
+  mimeType    String?
+
+  status     DocumentStatus @default(PENDING)
+  issuedAt   DateTime?
+  expiresAt  DateTime?
+  verifiedAt DateTime?
+  verifiedBy String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([vendorId])
+  @@index([type])
+  @@index([status])
+}
+
+model WorkRequirement {
+  id          String  @id @default(cuid())
+  title       String
+  description String
+  location    String?
+
+  // Requirements used for vendor recommendation
+  requiredCategories String[] @default([])
+  requiredSkills     String[] @default([])
+  budgetMin          Decimal? @db.Decimal(12, 2)
+  budgetMax          Decimal? @db.Decimal(12, 2)
+  deadline           DateTime?
+  priority           Int      @default(0)
+
+  status WorkRequirementStatus @default(DRAFT)
+
+  // Assignment fields
+  assignedVendorId String?
+  assignedVendor   Vendor? @relation("AssignedVendor", fields: [assignedVendorId], references: [id], onDelete: SetNull)
+
+  assignmentStatus AssignmentStatus?
+  matchScore       Float?
+  assignedAt       DateTime?
+  assignedBy       String?
+  assignmentNotes  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([assignedVendorId])
+  @@index([deadline])
+}
