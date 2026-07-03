@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Vendor Platform API",
-    "description": "Vendor, VendorDocument, and WorkRequirement CRUD endpoints for the intelligent vendor recommendation platform",
+    "description": "Vendor, VendorDocument, WorkRequirement CRUD, and vendor recommendation endpoints",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -290,6 +290,20 @@
             "method": "DELETE",
             "header": [],
             "url": "{{baseUrl}}/api/work-requirements/{{workRequirementId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Recommendations",
+      "item": [
+        {
+          "name": "Get Vendor Recommendations",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/recommendation/{{workRequirementId}}",
+            "description": "Scores ACTIVE vendors for a work requirement and returns the top 3 with reasons.\n\nScoring:\n- Category match: +40\n- Location match: +30\n- Rating x 6\n- Active vendor: +10"
           }
         }
       ]
