@@ -302,8 +302,17 @@
           "request": {
             "method": "POST",
             "header": [],
-            "url": "{{baseUrl}}/api/recommendation/{{workRequirementId}}",
+            "url": "{{baseUrl}}/api/recommendations/{{workRequirementId}}",
             "description": "Scores ACTIVE vendors for a work requirement and returns the top 3 with reasons.\n\nScoring:\n- Category match: +40\n- Location match: +30\n- Rating x 6\n- Active vendor: +10"
+          }
+        },
+        {
+          "name": "Get Recommendation Summary",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/recommendations/{{workRequirementId}}/summary",
+            "description": "Returns a deterministic text summary explaining why each recommended vendor was ranked, using the same scoring rules as Get Vendor Recommendations."
           }
         }
       ]

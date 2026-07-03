@@ -7,6 +7,7 @@ const router = Router();
 
 router.use("/vendors", vendorRoutes);
 router.use("/work-requirements", workRequirementRoutes);
+router.use("/recommendations", recommendationRoutes);
 router.use("/recommendation", recommendationRoutes);
 
 export default router;

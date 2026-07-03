@@ -17,7 +17,7 @@ function normalize(value) {
   return value.trim().toLowerCase();
 }
 
-function scoreVendor(vendor, workRequirement) {
+export function scoreVendor(vendor, workRequirement) {
   let score = 0;
   const reasons = [];
 
@@ -43,7 +43,28 @@ function scoreVendor(vendor, workRequirement) {
   return { score, reasons };
 }
 
-export async function getRecommendations(workRequirementId) {
+function buildVendorSummary(vendor, workRequirement, score, reasons, rank) {
+  const categoryMatch = normalize(vendor.category) === normalize(workRequirement.category);
+  const locationMatch = normalize(vendor.operatingLocation) === normalize(workRequirement.location);
+  const ratingPoints = vendor.rating * 6;
+
+  const sentences = [
+    `${vendor.name} is ranked #${rank} with a score of ${score} for "${workRequirement.title}".`,
+    categoryMatch
+      ? `The vendor category "${vendor.category}" matches the required category "${workRequirement.category}" (+40).`
+      : `The vendor category "${vendor.category}" does not match the required category "${workRequirement.category}" (0).`,
+    locationMatch
+      ? `The operating location "${vendor.operatingLocation}" matches the job location "${workRequirement.location}" (+30).`
+      : `The operating location "${vendor.operatingLocation}" does not match the job location "${workRequirement.location}" (0).`,
+    `A rating of ${vendor.rating} contributes ${ratingPoints} points (rating x 6).`,
+    `The vendor status is ${vendor.status}, contributing ${vendor.status === "ACTIVE" ? 10 : 0} points.`,
+    `Total breakdown: ${reasons.join(", ")}.`,
+  ];
+
+  return sentences.join(" ");
+}
+
+async function fetchScoredRecommendations(workRequirementId) {
   const workRequirement = await prisma.workRequirement.findUnique({
     where: { id: workRequirementId },
   });
@@ -62,8 +83,42 @@ export async function getRecommendations(workRequirementId) {
       const { score, reasons } = scoreVendor(vendor, workRequirement);
       return { vendor, score, reasons };
     })
-    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.vendor.name.localeCompare(b.vendor.name);
+    })
     .slice(0, 3);
 
   return { workRequirement, recommendations };
+}
+
+export async function getRecommendations(workRequirementId) {
+  return fetchScoredRecommendations(workRequirementId);
+}
+
+export async function getRecommendationSummary(workRequirementId) {
+  const result = await fetchScoredRecommendations(workRequirementId);
+
+  if (!result) {
+    return null;
+  }
+
+  const summaries = result.recommendations.map((recommendation, index) => {
+    const rank = index + 1;
+    const { vendor, score, reasons } = recommendation;
+
+    return {
+      rank,
+      vendorId: vendor.id,
+      vendorName: vendor.name,
+      score,
+      reasons,
+      summary: buildVendorSummary(vendor, result.workRequirement, score, reasons, rank),
+    };
+  });
+
+  return {
+    workRequirement: result.workRequirement,
+    summaries,
+  };
 }

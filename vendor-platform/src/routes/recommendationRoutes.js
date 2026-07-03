@@ -3,6 +3,7 @@ import * as recommendationController from "../controllers/recommendationControll
 
 const router = Router();
 
+router.post("/:workRequirementId/summary", recommendationController.getRecommendationSummary);
 router.post("/:workRequirementId", recommendationController.getRecommendations);
 
 export default router;
