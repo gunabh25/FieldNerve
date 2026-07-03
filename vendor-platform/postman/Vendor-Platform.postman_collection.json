@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Vendor Platform API",
-    "description": "Vendor CRUD endpoints for the intelligent vendor recommendation platform",
+    "description": "Vendor and VendorDocument CRUD endpoints for the intelligent vendor recommendation platform",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -11,6 +11,10 @@
     },
     {
       "key": "vendorId",
+      "value": ""
+    },
+    {
+      "key": "documentId",
       "value": ""
     }
   ],
@@ -24,87 +28,179 @@
       }
     },
     {
-      "name": "List All Vendors",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": "{{baseUrl}}/api/vendors"
-      }
-    },
-    {
-      "name": "List Vendors (filtered)",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/vendors?status=ACTIVE&category=Electrical&vendorType=Contractor",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "vendors"],
-          "query": [
-            { "key": "status", "value": "ACTIVE" },
-            { "key": "category", "value": "Electrical" },
-            { "key": "vendorType", "value": "Contractor" }
-          ]
-        }
-      }
-    },
-    {
-      "name": "Create Vendor",
-      "event": [
+      "name": "Vendors",
+      "item": [
         {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "if (pm.response.code === 201) {",
-              "  const json = pm.response.json();",
-              "  pm.collectionVariables.set('vendorId', json.data.id);",
-              "}"
+          "name": "List All Vendors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/vendors"
+          }
+        },
+        {
+          "name": "List Vendors (filtered)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/vendors?status=ACTIVE&category=Electrical&vendorType=Contractor",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vendors"],
+              "query": [
+                { "key": "status", "value": "ACTIVE" },
+                { "key": "category", "value": "Electrical" },
+                { "key": "vendorType", "value": "Contractor" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Vendor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('vendorId', json.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
             ],
-            "type": "text/javascript"
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Corp\",\n  \"vendorType\": \"Contractor\",\n  \"category\": \"Electrical\",\n  \"contactName\": \"John Doe\",\n  \"email\": \"john@acme.com\",\n  \"phone\": \"555-0100\",\n  \"operatingLocation\": \"Austin, TX\",\n  \"rating\": 4.5\n}"
+            },
+            "url": "{{baseUrl}}/api/vendors"
+          }
+        },
+        {
+          "name": "Get Vendor by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/vendors/{{vendorId}}"
+          }
+        },
+        {
+          "name": "Update Vendor",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4.8,\n  \"status\": \"INACTIVE\"\n}"
+            },
+            "url": "{{baseUrl}}/api/vendors/{{vendorId}}"
+          }
+        },
+        {
+          "name": "Delete Vendor",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/vendors/{{vendorId}}"
           }
         }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"name\": \"Acme Corp\",\n  \"vendorType\": \"Contractor\",\n  \"category\": \"Electrical\",\n  \"contactName\": \"John Doe\",\n  \"email\": \"john@acme.com\",\n  \"phone\": \"555-0100\",\n  \"operatingLocation\": \"Austin, TX\",\n  \"rating\": 4.5\n}"
+      ]
+    },
+    {
+      "name": "Vendor Documents",
+      "item": [
+        {
+          "name": "List Documents by Vendor",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/vendors/{{vendorId}}/documents"
+          }
         },
-        "url": "{{baseUrl}}/api/vendors"
-      }
-    },
-    {
-      "name": "Get Vendor by ID",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": "{{baseUrl}}/api/vendors/{{vendorId}}"
-      }
-    },
-    {
-      "name": "Update Vendor",
-      "request": {
-        "method": "PUT",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"rating\": 4.8,\n  \"status\": \"INACTIVE\"\n}"
+        {
+          "name": "List Documents (filtered)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/vendors/{{vendorId}}/documents?documentType=LICENSE&isVerified=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vendors", "{{vendorId}}", "documents"],
+              "query": [
+                { "key": "documentType", "value": "LICENSE" },
+                { "key": "isVerified", "value": "true" }
+              ]
+            }
+          }
         },
-        "url": "{{baseUrl}}/api/vendors/{{vendorId}}"
-      }
-    },
-    {
-      "name": "Delete Vendor",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": "{{baseUrl}}/api/vendors/{{vendorId}}"
-      }
+        {
+          "name": "Create Document",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('documentId', json.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentType\": \"LICENSE\",\n  \"expiryDate\": \"2027-12-31\",\n  \"isVerified\": false\n}"
+            },
+            "url": "{{baseUrl}}/api/vendors/{{vendorId}}/documents"
+          }
+        },
+        {
+          "name": "Get Document by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/vendors/{{vendorId}}/documents/{{documentId}}"
+          }
+        },
+        {
+          "name": "Update Document",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isVerified\": true,\n  \"expiryDate\": \"2028-06-30\"\n}"
+            },
+            "url": "{{baseUrl}}/api/vendors/{{vendorId}}/documents/{{documentId}}"
+          }
+        },
+        {
+          "name": "Delete Document",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/vendors/{{vendorId}}/documents/{{documentId}}"
+          }
+        }
+      ]
     }
   ]
 }
